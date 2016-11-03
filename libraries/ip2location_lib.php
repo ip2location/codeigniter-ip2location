@@ -13,86 +13,86 @@ class IP2Location_lib {
 	protected static $ip2location;
 
 	public function __construct() {
-		self::$ip2location = new IP2Location(IP2LOCATION_DATABASE, IP2Location::FILE_IO);
+		self::$ip2location = new \IP2Location\Database(IP2LOCATION_DATABASE, \IP2Location\Database::FILE_IO);
 	}
 
 	public function getCountryCode($ip=NULL) {
-		return self::$ip2location->lookup(self::getIP($ip), IP2Location::COUNTRY_CODE);
+		return self::$ip2location->lookup(self::getIP($ip), \IP2Location\Database::COUNTRY_CODE);
 	}
 
 	public function getCountryName($ip=NULL) {
-		return self::$ip2location->lookup(self::getIP($ip), IP2Location::COUNTRY_NAME);
+		return self::$ip2location->lookup(self::getIP($ip), \IP2Location\Database::COUNTRY_NAME);
 	}
 
 	public function getRegionName($ip=NULL) {
-		return self::$ip2location->lookup(self::getIP($ip), IP2Location::REGION_NAME);
+		return self::$ip2location->lookup(self::getIP($ip), \IP2Location\Database::REGION_NAME);
 	}
 
 	public function getCityName($ip=NULL) {
-		return self::$ip2location->lookup(self::getIP($ip), IP2Location::CITY_NAME);
+		return self::$ip2location->lookup(self::getIP($ip), \IP2Location\Database::CITY_NAME);
 	}
 
 	public function getLatitude($ip=NULL) {
-		return self::$ip2location->lookup(self::getIP($ip), IP2Location::LATITUDE);
+		return self::$ip2location->lookup(self::getIP($ip), \IP2Location\Database::LATITUDE);
 	}
 
 	public function getLongitude($ip=NULL) {
-		return self::$ip2location->lookup(self::getIP($ip), IP2Location::LONGITUDE);
+		return self::$ip2location->lookup(self::getIP($ip), \IP2Location\Database::LONGITUDE);
 	}
 
 	public function getISP($ip=NULL) {
-		return self::$ip2location->lookup(self::getIP($ip), IP2Location::ISP);
+		return self::$ip2location->lookup(self::getIP($ip), \IP2Location\Database::ISP);
 	}
 
 	public function getDomainName($ip=NULL) {
-		return self::$ip2location->lookup(self::getIP($ip), IP2Location::DOMAIN_NAME);
+		return self::$ip2location->lookup(self::getIP($ip), \IP2Location\Database::DOMAIN_NAME);
 	}
 
 	public function getZIPCode($ip=NULL) {
-		return self::$ip2location->lookup(self::getIP($ip), IP2Location::ZIP_CODE);
+		return self::$ip2location->lookup(self::getIP($ip), \IP2Location\Database::ZIP_CODE);
 	}
 
 	public function getTimeZone($ip=NULL) {
-		return self::$ip2location->lookup(self::getIP($ip), IP2Location::TIME_ZONE);
+		return self::$ip2location->lookup(self::getIP($ip), \IP2Location\Database::TIME_ZONE);
 	}
 
 	public function getNetSpeed($ip=NULL) {
-		return self::$ip2location->lookup(self::getIP($ip), IP2Location::NET_SPEED);
+		return self::$ip2location->lookup(self::getIP($ip), \IP2Location\Database::NET_SPEED);
 	}
 	public function getIDDCode($ip=NULL) {
-		return self::$ip2location->lookup(self::getIP($ip), IP2Location::IDD_CODE);
+		return self::$ip2location->lookup(self::getIP($ip), \IP2Location\Database::IDD_CODE);
 	}
 
 	public function getAreaCode($ip=NULL) {
-		return self::$ip2location->lookup(self::getIP($ip), IP2Location::AREA_CODE);
+		return self::$ip2location->lookup(self::getIP($ip), \IP2Location\Database::AREA_CODE);
 	}
 
 	public function getWeatherStationCode($ip=NULL) {
-		return self::$ip2location->lookup(self::getIP($ip), IP2Location::WEATHER_STATION_CODE);
+		return self::$ip2location->lookup(self::getIP($ip), \IP2Location\Database::WEATHER_STATION_CODE);
 	}
 
 	public function getWeatherStationName($ip=NULL) {
-		return self::$ip2location->lookup(self::getIP($ip), IP2Location::WEATHER_STATION_NAME);
+		return self::$ip2location->lookup(self::getIP($ip), \IP2Location\Database::WEATHER_STATION_NAME);
 	}
 
 	public function getMCC($ip=NULL) {
-		return self::$ip2location->lookup(self::getIP($ip), IP2Location::MCC);
+		return self::$ip2location->lookup(self::getIP($ip), \IP2Location\Database::MCC);
 	}
 
 	public function getMNC($ip=NULL) {
-		return self::$ip2location->lookup(self::getIP($ip), IP2Location::MNC);
+		return self::$ip2location->lookup(self::getIP($ip), \IP2Location\Database::MNC);
 	}
 
 	public function getMobileCarrierName($ip=NULL) {
-		return self::$ip2location->lookup(self::getIP($ip), IP2Location::MOBILE_CARRIER_NAME);
+		return self::$ip2location->lookup(self::getIP($ip), \IP2Location\Database::MOBILE_CARRIER_NAME);
 	}
 
 	public function getElevation($ip=NULL) {
-		return self::$ip2location->lookup(self::getIP($ip), IP2Location::ELEVATION);
+		return self::$ip2location->lookup(self::getIP($ip), \IP2Location\Database::ELEVATION);
 	}
 
 	public function getUsageType($ip=NULL) {
-		return self::$ip2location->lookup(self::getIP($ip), IP2Location::USAGE_TYPE);
+		return self::$ip2location->lookup(self::getIP($ip), \IP2Location\Database::USAGE_TYPE);
 	}
 
 	protected function getIP($ip=NULL) {
