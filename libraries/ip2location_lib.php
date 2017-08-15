@@ -2,7 +2,7 @@
 (defined('BASEPATH') || defined('SYSPATH')) or die('No direct access allowed.');
 
 if(!defined('IP2LOCATION_DATABASE')) {
-	define('IP2LOCATION_DATABASE', dirname(__FILE__) . '/ip2location/IP2LOCATION-LITE-DB1.BIN');
+	define('IP2LOCATION_DATABASE', dirname(__FILE__) . '/ip2location/IP2LOCATION-DB.BIN');
 }
 
 require_once('ip2location/ip2location.class.php');
