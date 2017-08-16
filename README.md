@@ -18,29 +18,35 @@ This module enables users to retrieve below geolocation information from an IP a
 * Elevation
 * Usage Type
 
-This module requires IP2Location BIN database to function. You may download the BIN database at the below link
-* IP2Location LITE BIN Database (free): http://lite.ip2location.com
-* IP2Location BIN Database (commercial version with high accuracy): http://www.ip2location.com
-  
   
 Installation
 ------------
 Upload `controllers` and `libraries` to CondeIngniter `application` folder.
 
-
+IP2Location BIN Database
+------------------------
+This module requires IP2Location BIN database to function. An outdated BIN database was provided in this release for your testing, but it's recommended to download the latest BIN database at the below link
+* IP2Location LITE BIN Database (free): http://lite.ip2location.com
+* IP2Location BIN Database (commercial version with high accuracy): http://www.ip2location.com
+  
+For the BIN database update, you can just rename the downloaded BIN database to *IP2LOCATION-DB.BIN* and replace the copy in *application/libraries/ip2location/* (if you didn't change the default IP2LOCATION_DATABASE constant as described in the below section).
+  
 Usage
 -----
 Use following codes in your application for get geolocation information.
 
-    // Define IP2Location database path
+    // Define IP2Location database path (optional). By default, the IP2LOCATION_DATABASE is pointed to *application/libraries/ip2location/IP2LOCATION-DB.BIN* if you choose not to change the original settings.
     define('IP2LOCATION_DATABASE', '/path/to/ip2location/database');
 
+	// Load the IP2Location library and perform the country code lookup
     $this->load->library('ip2location_lib');
     $countryCode = $this->ip2location_lib->getCountryCode('8.8.8.8');
 
 
 Methods
 -------
+Below are the methods supported.
+
     $countryCode = $this->ip2location_lib->getCountryCode($ip);
     $countryName = $this->ip2location_lib->getCountryName($ip);
     $regionName = $this->ip2location_lib->getRegionName($ip);
