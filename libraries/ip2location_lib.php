@@ -5,7 +5,7 @@ if(!defined('IP2LOCATION_DATABASE')) {
 	define('IP2LOCATION_DATABASE', dirname(__FILE__) . '/ip2location/IP2LOCATION-DB.BIN');
 }
 
-require_once('ip2location/ip2location.class.php');
+require_once('ip2location/IP2Location.php');
 
 class IP2Location_lib {
 	private $database;
