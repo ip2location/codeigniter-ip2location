@@ -42,6 +42,9 @@ Use following codes in your application for get geolocation information.
     $this->load->library('ip2location_lib');
     $countryCode = $this->ip2location_lib->getCountryCode('8.8.8.8');
 
+Sample Code
+-----------
+Sample codes are given in this project, under **controllers** folder. You may run the sample code by using <your_domain>/index.php/ip2location_test.
 
 Methods
 -------
@@ -67,3 +70,4 @@ Below are the methods supported.
     $mobileCarrierName = $this->ip2location_lib->getMobileCarrierName($ip);
     $elevation = $this->ip2location_lib->getElevation($ip);
     $usageType = $this->ip2location_lib->getUsageType($ip);
+    
