@@ -31,6 +31,13 @@ This module requires IP2Location BIN database to function. An outdated BIN datab
   
 For the BIN database update, you can just rename the downloaded BIN database to *IP2LOCATION-DB.BIN* and replace the copy in *application/libraries/ip2location/* (if you didn't change the default IP2LOCATION_DATABASE constant as described in the below section).
   
+IPv4 BIN vs IPv6 BIN
+------------------------
+Use the IPv4 BIN file if you just need to query IPv4 addresses.
+If you query an IPv6 address using the IPv4 BIN, you'll see the IPV6_NOT_SUPPORTED error.
+
+Use the IPv6 BIN file if you need to query BOTH IPv4 and IPv6 addresses.
+  
 Usage
 -----
 Use following codes in your application for get geolocation information.
