@@ -26,8 +26,8 @@ Upload `controllers` and `libraries` to CondeIngniter `application` folder.
 IP2Location BIN Database
 ------------------------
 This module requires IP2Location BIN database to function. An outdated BIN database was provided in this release for your testing, but it's recommended to download the latest BIN database at the below link
-* IP2Location LITE BIN Database (free): http://lite.ip2location.com
-* IP2Location BIN Database (commercial version with high accuracy): http://www.ip2location.com
+* IP2Location LITE BIN Database (free): https://lite.ip2location.com
+* IP2Location BIN Database (commercial version with high accuracy): https://www.ip2location.com
   
 For the BIN database update, you can just rename the downloaded BIN database to *IP2LOCATION-DB.BIN* and replace the copy in *application/libraries/ip2location/* (if you didn't change the default IP2LOCATION_DATABASE constant as described in the below section).
   
