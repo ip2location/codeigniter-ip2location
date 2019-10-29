@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright (C) 2005-2016 IP2Location.com
+ * Copyright (C) 2005-2019 IP2Location.com
  * All Rights Reserved
  *
  * This library is free software: you can redistribute it and/or
@@ -32,7 +32,7 @@ class Database {
    *
    * @var string
    */
-  const VERSION = '8.0.2';
+  const VERSION = '8.1.0';
 
   //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   //  Error field constants  ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -609,14 +609,17 @@ class Database {
    * @var array
    */
   private $ipBase = [];
-  
-  
+
+
   //hjlim
   private $indexBaseAddr = [];
   private $year;
   private $month;
   private $day;
   
+  // This variable will be used to hold the raw row of columns's positions
+  private $raw_positions_row; 
+
   //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   //  Default fields  //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1063,11 +1066,13 @@ class Database {
    * @return string
    */
   private function readString($pos, $additional = 0) {
-    // Get the actual pointer to the string's head
-    $spos = $this->readWord($pos) + $additional;
-
+	 
+	// Get the actual pointer to the string's head by extract from the raw row
+	$spos = unpack('V', substr($this->raw_positions_row, $pos, 4))[1] + $additional;
+	 
 	// Read as much as the length (first "string" byte) indicates
-    return $this->read($spos + 1, $this->readByte($spos + 1));
+	return $this->read($spos + 1, $this->readByte($spos + 1));
+	 
   }
 
   /**
@@ -1079,7 +1084,7 @@ class Database {
    */
   private function readFloat($pos) {
     // Unpack a float's size worth of data
-    return unpack('f', $this->read($pos - 1, self::$floatSize))[1];
+    return unpack('f', substr($this->raw_positions_row, $pos, self::$floatSize))[1];
   }
 
   /**
@@ -1142,8 +1147,8 @@ class Database {
       // Read the country code and name (the name shares the country's pointer,
       // but it must be artificially displaced 3 bytes ahead: 2 for the country code, one
       // for the country name's length)
-      $countryCode = $this->readString($pointer + self::$columns[self::COUNTRY_CODE][$this->type]);
-      $countryName = $this->readString($pointer + self::$columns[self::COUNTRY_NAME][$this->type], 3);
+      $countryCode = $this->readString(self::$columns[self::COUNTRY_CODE][$this->type]);
+      $countryName = $this->readString(self::$columns[self::COUNTRY_NAME][$this->type], 3);
     }
 
     return [$countryName, $countryCode];
@@ -1165,7 +1170,7 @@ class Database {
       $regionName = self::FIELD_NOT_SUPPORTED;
     } else {
       // Read the region name
-      $regionName = $this->readString($pointer + self::$columns[self::REGION_NAME][$this->type]);
+      $regionName = $this->readString(self::$columns[self::REGION_NAME][$this->type]);
     }
     return $regionName;
   }
@@ -1186,7 +1191,7 @@ class Database {
       $cityName = self::FIELD_NOT_SUPPORTED;
     } else {
       // Read the city name
-      $cityName = $this->readString($pointer + self::$columns[self::CITY_NAME][$this->type]);
+      $cityName = $this->readString(self::$columns[self::CITY_NAME][$this->type]);
     }
     return $cityName;
   }
@@ -1209,8 +1214,8 @@ class Database {
       $longitude = self::FIELD_NOT_SUPPORTED;
     } else {
       // Read latitude and longitude
-      $latitude  = $this->readFloat($pointer + self::$columns[self::LATITUDE][$this->type]);
-      $longitude = $this->readFloat($pointer + self::$columns[self::LONGITUDE][$this->type]);
+      $latitude  = round($this->readFloat(self::$columns[self::LATITUDE][$this->type]), 6);
+      $longitude = round($this->readFloat(self::$columns[self::LONGITUDE][$this->type]), 6);
     }
     return [$latitude, $longitude];
   }
@@ -1231,7 +1236,7 @@ class Database {
       $isp = self::FIELD_NOT_SUPPORTED;
     } else {
       // Read isp name
-      $isp = $this->readString($pointer + self::$columns[self::ISP][$this->type]);
+      $isp = $this->readString(self::$columns[self::ISP][$this->type]);
     }
     return $isp;
   }
@@ -1252,7 +1257,7 @@ class Database {
       $domainName = self::FIELD_NOT_SUPPORTED;
     } else {
       // Read the domain name
-      $domainName = $this->readString($pointer + self::$columns[self::DOMAIN_NAME][$this->type]);
+      $domainName = $this->readString(self::$columns[self::DOMAIN_NAME][$this->type]);
     }
     return $domainName;
   }
@@ -1273,7 +1278,7 @@ class Database {
       $zipCode = self::FIELD_NOT_SUPPORTED;
     } else {
       // Read the zip code
-      $zipCode = $this->readString($pointer + self::$columns[self::ZIP_CODE][$this->type]);
+      $zipCode = $this->readString(self::$columns[self::ZIP_CODE][$this->type]);
     }
     return $zipCode;
   }
@@ -1294,7 +1299,7 @@ class Database {
       $timeZone = self::FIELD_NOT_SUPPORTED;
     } else {
       // Read the time zone
-      $timeZone = $this->readString($pointer + self::$columns[self::TIME_ZONE][$this->type]);
+      $timeZone = $this->readString(self::$columns[self::TIME_ZONE][$this->type]);
     }
     return $timeZone;
   }
@@ -1315,7 +1320,7 @@ class Database {
       $netSpeed = self::FIELD_NOT_SUPPORTED;
     } else {
       // Read the net speed
-      $netSpeed = $this->readString($pointer + self::$columns[self::NET_SPEED][$this->type]);
+      $netSpeed = $this->readString(self::$columns[self::NET_SPEED][$this->type]);
     }
     return $netSpeed;
   }
@@ -1338,8 +1343,8 @@ class Database {
       $areaCode = self::FIELD_NOT_SUPPORTED;
     } else {
       // Read IDD and area codes
-      $iddCode  = $this->readString($pointer + self::$columns[self::IDD_CODE][$this->type]);
-      $areaCode = $this->readString($pointer + self::$columns[self::AREA_CODE][$this->type]);
+      $iddCode  = $this->readString(self::$columns[self::IDD_CODE][$this->type]);
+      $areaCode = $this->readString(self::$columns[self::AREA_CODE][$this->type]);
     }
     return [$iddCode, $areaCode];
   }
@@ -1362,8 +1367,8 @@ class Database {
       $weatherStationCode = self::FIELD_NOT_SUPPORTED;
     } else {
       // Read weather station name and code
-      $weatherStationName = $this->readString($pointer + self::$columns[self::WEATHER_STATION_NAME][$this->type]);
-      $weatherStationCode = $this->readString($pointer + self::$columns[self::WEATHER_STATION_CODE][$this->type]);
+      $weatherStationName = $this->readString(self::$columns[self::WEATHER_STATION_NAME][$this->type]);
+      $weatherStationCode = $this->readString(self::$columns[self::WEATHER_STATION_CODE][$this->type]);
     }
     return [$weatherStationName, $weatherStationCode];
   }
@@ -1388,9 +1393,9 @@ class Database {
       $mobileCarrierName = self::FIELD_NOT_SUPPORTED;
     } else {
       // Read MCC, MNC, and mobile carrier name
-      $mcc               = $this->readString($pointer + self::$columns[self::MCC][$this->type]);
-      $mnc               = $this->readString($pointer + self::$columns[self::MNC][$this->type]);
-      $mobileCarrierName = $this->readString($pointer + self::$columns[self::MOBILE_CARRIER_NAME][$this->type]);
+      $mcc               = $this->readString(self::$columns[self::MCC][$this->type]);
+      $mnc               = $this->readString(self::$columns[self::MNC][$this->type]);
+      $mobileCarrierName = $this->readString(self::$columns[self::MOBILE_CARRIER_NAME][$this->type]);
     }
     return [$mcc, $mnc, $mobileCarrierName];
   }
@@ -1411,7 +1416,7 @@ class Database {
       $elevation = self::FIELD_NOT_SUPPORTED;
     } else {
       // Read the elevation
-      $elevation = $this->readString($pointer + self::$columns[self::ELEVATION][$this->type]);
+      $elevation = $this->readString(self::$columns[self::ELEVATION][$this->type]);
     }
     return $elevation;
   }
@@ -1431,7 +1436,7 @@ class Database {
       // If the field is not suported, return accordingly
       $usageType = self::FIELD_NOT_SUPPORTED;
     } else {
-      $usageType = $this->readString($pointer + self::$columns[self::USAGE_TYPE][$this->type]);
+      $usageType = $this->readString(self::$columns[self::USAGE_TYPE][$this->type]);
     }
     return $usageType;
   }
@@ -1469,7 +1474,7 @@ class Database {
    * @param int $ipNumber  IP number to look for
    * @return int|boolean
    */
-  private function binSearch($version, $ipNumber) {
+  private function binSearch($version, $ipNumber, $cidr=false) {
     if (false === $version) {
       // unrecognized version
       return false;
@@ -1490,35 +1495,35 @@ class Database {
 			case 4:
 				$ipNum1_2 = intval($ipNumber / 65536);
 				$indexPos = $indexBaseStart + ($ipNum1_2 << 3);
-				
+
 				break;
-			
+
 			case 6:
 				$ipNum1 = intval(bcdiv($ipNumber, bcpow('2', '112')));
 				$indexPos = $indexBaseStart + ($ipNum1 << 3);
 
 				break;
-				
+
 			default:
 				return false;
 		}
-		
+
 		$low = $this->readWord($indexPos);
 		$high = $this->readWord($indexPos + 4);
 	}
-	
+
     // as long as we can narrow down the search...
 	while ($low <= $high) {
       $mid     = (int) ($low + (($high - $low) >> 1));
-		
+
 	  // Read IP ranges to get boundaries
       $ip_from = $this->readIp($version, $base + $width * $mid);
       $ip_to   = $this->readIp($version, $base + $width * ($mid + 1));
-    
+
       // determine whether to return, repeat on the lower half, or repeat on the upper half
       switch (self::ipBetween($version, $ipNumber, $ip_from, $ip_to)) {
         case 0:
-		  return $base + $offset + $mid * $width;
+          return ($cidr) ? array($ip_from, $ip_to) : $base + $offset + $mid * $width;
         case -1:
           $high = $mid - 1;
           break;
@@ -1584,14 +1589,14 @@ class Database {
   public function getModuleVersion() {
 	return self::VERSION;
   }
-  
+
   /**
    * Return the version of module
    */
   public function getDatabaseVersion() {
 	return $this->year . '.' . $this->month . '.' . $this->day;
   }
-  
+
   /**
    * This function will look the given IP address up in the database and return the result(s) asked for
    *
@@ -1607,20 +1612,32 @@ class Database {
    * @return mixed|array|boolean
    */
   public function lookup($ip, $fields = null, $asNamed = true) {
+
     // extract IP version and number
     list($ipVersion, $ipNumber) = self::ipVersionAndNumber($ip);
     // perform the binary search proper (if the IP address was invalid, binSearch will return false)
     $pointer = $this->binSearch($ipVersion, $ipNumber);
+    if(empty($pointer)) { return false; }
 
     // apply defaults if needed
     if (null === $fields) {
       $fields = $this->defaultFields;
     }
 
+    // Get the entire row based on the pointer value
+    // The length of the row differs based on the IP version
+    if (4 === $ipVersion) {
+      $this->raw_positions_row = $this->read($pointer - 1, $this->columnWidth[4] + 4);
+    } elseif (6 === $ipVersion) {
+      $this->raw_positions_row = $this->read($pointer - 1, $this->columnWidth[6]);
+    }
+
     // turn fields into an array in case it wasn't already
     $ifields = (array) $fields;
-    // add fields if needed
+	
+	// add fields if needed
     if (in_array(self::ALL, $ifields)) {
+	
       $ifields[] = self::REGION_NAME;
       $ifields[] = self::CITY_NAME;
       $ifields[] = self::ISP;
@@ -1640,6 +1657,8 @@ class Database {
       $ifields[] = self::IP_ADDRESS;
       $ifields[] = self::IP_VERSION;
       $ifields[] = self::IP_NUMBER;
+	  
+
     }
     // turn into a uniquely-valued array the fast way
     // (see: http://php.net/manual/en/function.array-unique.php#77743)
@@ -1899,6 +1918,30 @@ class Database {
       // return a single value
       return array_values($results)[0];
     }
+  }
+
+  /**
+   * For a given IP address, returns the cidr of his sub-network.
+   *
+   * For example, calling get_cidr('91.200.12.233') returns '91.200.0.0/13'.
+   * Useful to setup "Deny From 91.200.0.0/13" in .htaccess file for Apache2
+   * server against spam.
+   * */
+  public function get_cidr($ip) {
+    // extract IP version and number
+    list($ipVersion, $ipNumber) = self::ipVersionAndNumber($ip);
+    // perform the binary search proper (if the IP address was invalid, binSearch will return false)
+    $resp = $this->binSearch($ipVersion, $ipNumber, true);
+    if(!empty($resp)) {
+      list($ip_from, $ip_to) = $resp;
+      $i=32; $mask=1;
+      while(($ip_to & $mask) == 0) {
+        $mask *= 2; $i--;
+      }
+      $ip = long2ip($ip_from);
+      return "$ip/$i";
+    }
+    return false;
   }
 
 }

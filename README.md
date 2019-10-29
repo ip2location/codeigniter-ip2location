@@ -18,7 +18,7 @@ This module enables users to retrieve below geolocation information from an IP a
 * Elevation
 * Usage Type
 
-  
+
 Installation
 ------------
 Upload `controllers` and `libraries` to CodeIgniter `application` folder.
@@ -28,15 +28,15 @@ IP2Location BIN Database
 This module requires IP2Location BIN database to function. An outdated BIN database was provided in this release for your testing, but it's recommended to download the latest BIN database at the below link
 * IP2Location LITE BIN Database (free): https://lite.ip2location.com
 * IP2Location BIN Database (commercial version with high accuracy): https://www.ip2location.com
-  
+
 For the BIN database update, you can just rename the downloaded BIN database to *IP2LOCATION-DB.BIN* and replace the copy in *application/libraries/ip2location/* (if you didn't change the default IP2LOCATION_DATABASE constant as described in the below section).
-  
+
 IPv4 BIN vs IPv6 BIN
 ------------------------
 Use the IPv4 BIN file if you just need to query IPv4 addresses.
 
 Use the IPv6 BIN file if you need to query BOTH IPv4 and IPv6 addresses.
-  
+
 Usage
 -----
 Use following codes in your application for get geolocation information.
@@ -44,7 +44,7 @@ Use following codes in your application for get geolocation information.
     // Define IP2Location database path (optional). By default, the IP2LOCATION_DATABASE is pointed to *application/libraries/ip2location/IP2LOCATION-DB.BIN* if you choose not to change the original settings.
     define('IP2LOCATION_DATABASE', '/path/to/ip2location/database');
 
-	// Load the IP2Location library and perform the country code lookup
+    // Load the IP2Location library and perform the country code lookup
     $this->load->library('ip2location_lib');
     $countryCode = $this->ip2location_lib->getCountryCode('8.8.8.8');
 
@@ -76,4 +76,4 @@ Below are the methods supported.
     $mobileCarrierName = $this->ip2location_lib->getMobileCarrierName($ip);
     $elevation = $this->ip2location_lib->getElevation($ip);
     $usageType = $this->ip2location_lib->getUsageType($ip);
-    
+
