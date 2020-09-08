@@ -77,7 +77,7 @@ Use following codes in your application for get geolocation information.
     define('IP2LOCATION_LANGUAGE', 'zh-cn');
 
     $ipl = new IP2Location_lib();
-    $countryCode = $ipl->getWebService('8.8.8.8');
+    print_r ($ipl->getWebService('8.8.8.8'));
 
 ## Dependencies
 This module requires IP2Location BIN data file or IP2Location API key to function. You may download the BIN data file at
