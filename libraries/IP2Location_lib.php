@@ -1,8 +1,29 @@
-<?php
-(defined('BASEPATH') || defined('SYSPATH')) or die('No direct access allowed.');
+<?php namespace App\Libraries;
 
+// BIN Database Setting
 if(!defined('IP2LOCATION_DATABASE')) {
 	define('IP2LOCATION_DATABASE', dirname(__FILE__) . '/ip2location/IP2LOCATION-DB.BIN');
+}
+
+// Web Service Settings
+if(!defined('IP2LOCATION_API_KEY')) {
+	define('IP2LOCATION_API_KEY', 'demo');
+}
+
+if(!defined('IP2LOCATION_PACKAGE')) {
+	define('IP2LOCATION_PACKAGE', 'WS1');
+}
+
+if(!defined('IP2LOCATION_USESSL')) {
+	define('IP2LOCATION_USESSL', false);
+}
+
+if(!defined('IP2LOCATION_ADDONS')) {
+	define('IP2LOCATION_ADDONS', []);
+}
+
+if(!defined('IP2LOCATION_LANGUAGE')) {
+	define('IP2LOCATION_LANGUAGE', 'en');
 }
 
 require_once('ip2location/IP2Location.php');
@@ -93,6 +114,11 @@ class IP2Location_lib {
 
 	public function getUsageType($ip=NULL) {
 		return self::$ip2location->lookup(self::getIP($ip), \IP2Location\Database::USAGE_TYPE);
+	}
+
+	public function getWebService($ip=NULL) {
+		$ws = new \IP2Location\WebService(IP2LOCATION_API_KEY, IP2LOCATION_PACKAGE, IP2LOCATION_USESSL);
+		return $ws->lookup(self::getIP($ip), IP2LOCATION_ADDONS, IP2LOCATION_LANGUAGE);
 	}
 
 	protected function getIP($ip=NULL) {
