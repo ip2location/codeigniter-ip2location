@@ -1,6 +1,6 @@
 {
     "name": "ip2location/codeigniter-ip2location",
-    "description": "IP2Location library for CodeIgniter. Use IP2Location geolocation database to lookup the country, region, city, coordinates, zip code, time zone, ISP, domain name, connection type, area code, weather, MCC, MNC, mobile brand name, elevation and usage type that any IP address or hostname originates from.",
+    "description": "IP2Location library for CodeIgniter. Use IP2Location geolocation database to lookup the country, region, city, coordinates, zip code, time zone, ISP, domain name, connection type, area code, weather, MCC, MNC, mobile brand name, elevation, usage type, IP address type and IAB advertising category from IP address using IP2Location database.",
     "keywords": ["ip2location-bin-database", "geolocation-information", "codeigniter-ip2location", "ip-geolocation", "geolocation", "ip-lookup", "ip-address-database", "ip-database"],
     "homepage": "https://www.ip2location.com",
     "license": "MIT",

@@ -1,10 +1,12 @@
-<?php namespace App\Controllers;
-
-use App\Libraries\IP2Location_lib;
-
+<?php
 date_default_timezone_set('Etc/UTC');
 
-class IP2Location_test extends BaseController {
+class IP2Location_test extends CI_Controller {
+    function __construct() {
+        parent::__construct();
+        $this->load->library('ip2location_lib');
+    }
+
     public function index() {
         $ipl = new IP2Location_lib();
 

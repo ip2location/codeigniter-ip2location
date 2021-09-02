@@ -1,24 +1,5 @@
 <?php
 
-/*
- * Copyright (C) 2005-2020 IP2Location.com
- * All Rights Reserved
- *
- * This library is free software: you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation, either
- * version 3 of the License, or (at your option) any later version.
- *
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library; If not, see <http://www.gnu.org/licenses/>.
- *
- */
-
 namespace IP2Location;
 
 /**
@@ -31,7 +12,7 @@ class Database
 	 *
 	 * @var string
 	 */
-	public const VERSION = '8.2.2';
+	public const VERSION = '9.2.1';
 
 	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	//  Error field constants  ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -42,7 +23,7 @@ class Database
 	 *
 	 * @var string
 	 */
-	public const FIELD_NOT_SUPPORTED = 'This parameter is unavailable in selected .BIN data file. Please upgrade.';
+	public const FIELD_NOT_SUPPORTED = 'This parameter is unavailable in selected .BIN data file. Please upgrade data file.';
 
 	/**
 	 * Unknown field message.
@@ -61,6 +42,20 @@ class Database
 	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	//  Field selection constants  ///////////////////////////////////////////////////////////////////////////////////////////////////////////
 	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+	/**
+	 * Maximum IPv4 number.
+	 *
+	 * @var int
+	 */
+	public const MAX_IPV4_RANGE = 4294967295;
+
+	/**
+	 * MAximum IPv6 number.
+	 *
+	 * @var int
+	 */
+	public const MAX_IPV6_RANGE = 340282366920938463463374607431768211455;
 
 	/**
 	 * Country code (ISO 3166-1 Alpha 2).
@@ -203,6 +198,20 @@ class Database
 	public const USAGE_TYPE = 20;
 
 	/**
+	 * Address type.
+	 *
+	 * @var int
+	 */
+	public const ADDRESS_TYPE = 21;
+
+	/**
+	 * Category.
+	 *
+	 * @var int
+	 */
+	public const CATEGORY = 22;
+
+	/**
 	 * Country name and code.
 	 *
 	 * @var int
@@ -309,7 +318,7 @@ class Database
 	 *
 	 * @var int
 	 */
-	public const EXCEPTION_DBFILE_NOT_FOUND = 10005;
+	public const EXCEPTION_DATABASE_FILE_NOT_FOUND = 10005;
 
 	/**
 	 * Not enough memory to load database file.
@@ -319,7 +328,7 @@ class Database
 	public const EXCEPTION_NO_MEMORY = 10006;
 
 	/**
-	 * No candidate databse files found.
+	 * No candidate database files found.
 	 *
 	 * @var int
 	 */
@@ -339,12 +348,19 @@ class Database
 	 */
 	public const EXCEPTION_NO_PATH = 10009;
 
+	/**
+	 * Invalid BIN database file.
+	 *
+	 * @var int
+	 */
+	public const EXCEPTION_INVALID_BIN_DATABASE = 10010;
+
 	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	//  Caching method constants  ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 	/**
-	 * Directly read from the databse file.
+	 * Directly read from the database file.
 	 *
 	 * @var int
 	 */
@@ -389,7 +405,7 @@ class Database
 	/**
 	 * Column offset mapping.
 	 *
-	 * Each entry contains an array mapping databse version (0--23) to offset within a record.
+	 * Each entry contains an array mapping database version (0--23) to offset within a record.
 	 * A value of 0 means the column is not present in the given database version.
 	 *
 	 * @static
@@ -397,26 +413,28 @@ class Database
 	 * @var array
 	 */
 	private static $columns = [
-		self::COUNTRY_CODE         => [8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8],
-		self::COUNTRY_NAME         => [8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8],
-		self::REGION_NAME          => [0, 0, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12],
-		self::CITY_NAME            => [0, 0, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16],
-		self::LATITUDE             => [0, 0, 0, 0, 20, 20, 0, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20],
-		self::LONGITUDE            => [0, 0, 0, 0, 24, 24, 0, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24],
-		self::ISP                  => [0, 12, 0, 20, 0, 28, 20, 28, 0, 32, 0, 36, 0, 36, 0, 36, 0, 36, 28, 36, 0, 36, 28, 36],
-		self::DOMAIN_NAME          => [0, 0, 0, 0, 0, 0, 24, 32, 0, 36, 0, 40, 0, 40, 0, 40, 0, 40, 32, 40, 0, 40, 32, 40],
-		self::ZIP_CODE             => [0, 0, 0, 0, 0, 0, 0, 0, 28, 28, 28, 28, 0, 28, 28, 28, 0, 28, 0, 28, 28, 28, 0, 28],
-		self::TIME_ZONE            => [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 32, 32, 28, 32, 32, 32, 28, 32, 0, 32, 32, 32, 0, 32],
-		self::NET_SPEED            => [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 32, 44, 0, 44, 32, 44, 0, 44, 0, 44, 0, 44],
-		self::IDD_CODE             => [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 36, 48, 0, 48, 0, 48, 36, 48, 0, 48],
-		self::AREA_CODE            => [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 40, 52, 0, 52, 0, 52, 40, 52, 0, 52],
-		self::WEATHER_STATION_CODE => [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 36, 56, 0, 56, 0, 56, 0, 56],
-		self::WEATHER_STATION_NAME => [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 40, 60, 0, 60, 0, 60, 0, 60],
-		self::MCC                  => [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 36, 64, 0, 64, 36, 64],
-		self::MNC                  => [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 40, 68, 0, 68, 40, 68],
-		self::MOBILE_CARRIER_NAME  => [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 44, 72, 0, 72, 44, 72],
-		self::ELEVATION            => [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 44, 76, 0, 76],
-		self::USAGE_TYPE           => [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 48, 80],
+		self::COUNTRY_CODE         => [8,  8,  8,  8,  8,  8,  8,  8,  8,  8,  8,  8,  8,  8,  8,  8,  8,  8,  8,  8,  8,  8,  8,  8,  8],
+		self::COUNTRY_NAME         => [8,  8,  8,  8,  8,  8,  8,  8,  8,  8,  8,  8,  8,  8,  8,  8,  8,  8,  8,  8,  8,  8,  8,  8,  8],
+		self::REGION_NAME          => [0,  0, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12],
+		self::CITY_NAME            => [0,  0, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16],
+		self::LATITUDE             => [0,  0,  0,  0, 20, 20,  0, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20],
+		self::LONGITUDE            => [0,  0,  0,  0, 24, 24,  0, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24],
+		self::ZIP_CODE             => [0,  0,  0,  0,  0,  0,  0,  0, 28, 28, 28, 28,  0, 28, 28, 28,  0, 28,  0, 28, 28, 28,  0, 28, 28],
+		self::TIME_ZONE            => [0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 32, 32, 28, 32, 32, 32, 28, 32,  0, 32, 32, 32,  0, 32, 32],
+		self::ISP                  => [0, 12,  0, 20,  0, 28, 20, 28,  0, 32,  0, 36,  0, 36,  0, 36,  0, 36, 28, 36,  0, 36, 28, 36, 36],
+		self::DOMAIN_NAME          => [0,  0,  0,  0,  0,  0, 24, 32,  0, 36,  0, 40,  0, 40,  0, 40,  0, 40, 32, 40,  0, 40, 32, 40, 40],
+		self::NET_SPEED            => [0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 32, 44,  0, 44, 32, 44,  0, 44,  0, 44,  0, 44, 44],
+		self::IDD_CODE             => [0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 36, 48,  0, 48,  0, 48, 36, 48,  0, 48, 48],
+		self::AREA_CODE            => [0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 40, 52,  0, 52,  0, 52, 40, 52,  0, 52, 52],
+		self::WEATHER_STATION_CODE => [0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 36, 56,  0, 56,  0, 56,  0, 56, 56],
+		self::WEATHER_STATION_NAME => [0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 40, 60,  0, 60,  0, 60,  0, 60, 60],
+		self::MCC                  => [0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 36, 64,  0, 64, 36, 64, 64],
+		self::MNC                  => [0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 40, 68,  0, 68, 40, 68, 68],
+		self::MOBILE_CARRIER_NAME  => [0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 44, 72,  0, 72, 44, 72, 72],
+		self::ELEVATION            => [0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 44, 76,  0, 76, 76],
+		self::USAGE_TYPE           => [0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 48, 80, 80],
+		self::ADDRESS_TYPE         => [0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 84],
+		self::CATEGORY             => [0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 88],
 	];
 
 	/**
@@ -447,6 +465,8 @@ class Database
 		self::MOBILE_CARRIER_NAME  => 'mobileCarrierName',
 		self::ELEVATION            => 'elevation',
 		self::USAGE_TYPE           => 'usageType',
+		self::ADDRESS_TYPE         => 'addressType',
+		self::CATEGORY             => 'category',
 		self::IP_ADDRESS           => 'ipAddress',
 		self::IP_VERSION           => 'ipVersion',
 		self::IP_NUMBER            => 'ipNumber',
@@ -459,6 +479,7 @@ class Database
 	 */
 	private static $databases = [
 		// IPv4 databases
+	'IP-COUNTRY-REGION-CITY-LATITUDE-LONGITUDE-ZIPCODE-TIMEZONE-ISP-DOMAIN-NETSPEED-AREACODE-WEATHER-MOBILE-ELEVATION-USAGETYPE-ADDRESSTYPE-CATEGORY',
 		'IP-COUNTRY-REGION-CITY-LATITUDE-LONGITUDE-ZIPCODE-TIMEZONE-ISP-DOMAIN-NETSPEED-AREACODE-WEATHER-MOBILE-ELEVATION-USAGETYPE',
 		'IP-COUNTRY-REGION-CITY-LATITUDE-LONGITUDE-ISP-DOMAIN-MOBILE-USAGETYPE',
 		'IP-COUNTRY-REGION-CITY-LATITUDE-LONGITUDE-ZIPCODE-TIMEZONE-ISP-DOMAIN-NETSPEED-AREACODE-WEATHER-MOBILE-ELEVATION',
@@ -484,6 +505,7 @@ class Database
 		'IP-COUNTRY-ISP',
 		'IP-COUNTRY',
 		// IPv6 databases
+		'IPV6-COUNTRY-REGION-CITY-LATITUDE-LONGITUDE-ZIPCODE-TIMEZONE-ISP-DOMAIN-NETSPEED-AREACODE-WEATHER-MOBILE-ELEVATION-USAGETYPE-ADDRESSTYPE-CATEGORY',
 		'IPV6-COUNTRY-REGION-CITY-LATITUDE-LONGITUDE-ZIPCODE-TIMEZONE-ISP-DOMAIN-NETSPEED-AREACODE-WEATHER-MOBILE-ELEVATION-USAGETYPE',
 		'IPV6-COUNTRY-REGION-CITY-LATITUDE-LONGITUDE-ISP-DOMAIN-MOBILE-USAGETYPE',
 		'IPV6-COUNTRY-REGION-CITY-LATITUDE-LONGITUDE-ZIPCODE-TIMEZONE-ISP-DOMAIN-NETSPEED-AREACODE-WEATHER-MOBILE-ELEVATION',
@@ -630,7 +652,28 @@ class Database
 	private $day;
 
 	/**
-	 * The raw row of columns's positions.
+	 * Product code.
+	 *
+	 * @var string
+	 */
+	private $productCode;
+
+	/**
+	 * License code.
+	 *
+	 * @var string
+	 */
+	private $licenseCode;
+
+	/**
+	 * Database size.
+	 *
+	 * @var int
+	 */
+	private $databaseSize;
+
+	/**
+	 * The raw row of column positions.
 	 *
 	 * @var string
 	 */
@@ -696,84 +739,84 @@ class Database
 
 		// initialize caching backend
 		switch ($mode) {
-		case self::SHARED_MEMORY:
-		// verify the shmop extension is loaded
-		if (!\extension_loaded('shmop')) {
-			throw new \Exception(__CLASS__ . ": Please make sure your PHP setup has the 'shmop' extension enabled.", self::EXCEPTION_NO_SHMOP);
-		}
-
-		$limit = self::getMemoryLimit();
-		if ($limit !== false && $size > $limit) {
-			throw new \Exception(__CLASS__ . ": Insufficient memory to load file '{$rfile}'.", self::EXCEPTION_NO_MEMORY);
-		}
-
-		$this->mode = self::SHARED_MEMORY;
-		$shmKey = self::getShmKey($rfile);
-
-		// try to open the shared memory segment
-		$this->resource = @shmop_open($shmKey, 'a', 0, 0);
-		if ($this->resource === false) {
-			// the segment did not exist, create it and load the database into it
-			$fp = fopen($rfile, 'r');
-			if ($fp === false) {
-				throw new \Exception(__CLASS__ . ": Unable to open file '{$rfile}'.", self::EXCEPTION_FILE_OPEN_FAILED);
+			case self::SHARED_MEMORY:
+			// verify the shmop extension is loaded
+			if (!\extension_loaded('shmop')) {
+				throw new \Exception(__CLASS__ . ": Please make sure your PHP setup has the 'shmop' extension enabled.", self::EXCEPTION_NO_SHMOP);
 			}
 
-			// try to open the memory segment for exclusive access
-			$shmId = @shmop_open($shmKey, 'n', self::SHM_PERMS, $size);
-			if ($shmId === false) {
-				throw new \Exception(__CLASS__ . ": Unable to create shared memory block '{$shmKey}'.", self::EXCEPTION_SHMOP_CREATE_FAILED);
-			}
-
-			// load SHM_CHUNK_SIZE bytes at a time
-			$pointer = 0;
-			while ($pointer < $size) {
-				$buf = fread($fp, self::SHM_CHUNK_SIZE);
-				shmop_write($shmId, $buf, $pointer);
-				$pointer += self::SHM_CHUNK_SIZE;
-			}
-			shmop_close($shmId);
-			fclose($fp);
-
-			// now open the memory segment for readonly access
-			$this->resource = @shmop_open($shmKey, 'a', 0, 0);
-			if ($this->resource === false) {
-				throw new \Exception(__CLASS__ . ": Unable to access shared memory block '{$shmKey}' for reading.", self::EXCEPTION_SHMOP_READING_FAILED);
-			}
-		}
-		break;
-
-		case self::FILE_IO:
-		$this->mode = self::FILE_IO;
-		$this->resource = @fopen($rfile, 'r');
-		if ($this->resource === false) {
-			throw new \Exception(__CLASS__ . ": Unable to open file '{$rfile}'.", self::EXCEPTION_FILE_OPEN_FAILED);
-		}
-		break;
-
-		case self::MEMORY_CACHE:
-		$this->mode = self::MEMORY_CACHE;
-		$this->resource = $rfile;
-		if (!\array_key_exists($rfile, self::$buffer)) {
 			$limit = self::getMemoryLimit();
 			if ($limit !== false && $size > $limit) {
 				throw new \Exception(__CLASS__ . ": Insufficient memory to load file '{$rfile}'.", self::EXCEPTION_NO_MEMORY);
 			}
 
-			self::$buffer[$rfile] = @file_get_contents($rfile);
-			if (self::$buffer[$rfile] === false) {
+			$this->mode = self::SHARED_MEMORY;
+			$shmKey = self::getShmKey($rfile);
+
+			// try to open the shared memory segment
+			$this->resource = @shmop_open($shmKey, 'a', 0, 0);
+			if ($this->resource === false) {
+				// the segment did not exist, create it and load the database into it
+				$fp = fopen($rfile, 'r');
+				if ($fp === false) {
+					throw new \Exception(__CLASS__ . ": Unable to open file '{$rfile}'.", self::EXCEPTION_FILE_OPEN_FAILED);
+				}
+
+				// try to open the memory segment for exclusive access
+				$shmId = @shmop_open($shmKey, 'n', self::SHM_PERMS, $size);
+				if ($shmId === false) {
+					throw new \Exception(__CLASS__ . ": Unable to create shared memory block '{$shmKey}'.", self::EXCEPTION_SHMOP_CREATE_FAILED);
+				}
+
+				// load SHM_CHUNK_SIZE bytes at a time
+				$pointer = 0;
+				while ($pointer < $size) {
+					$buf = fread($fp, self::SHM_CHUNK_SIZE);
+					shmop_write($shmId, $buf, $pointer);
+					$pointer += self::SHM_CHUNK_SIZE;
+				}
+				shmop_close($shmId);
+				fclose($fp);
+
+				// now open the memory segment for readonly access
+				$this->resource = @shmop_open($shmKey, 'a', 0, 0);
+				if ($this->resource === false) {
+					throw new \Exception(__CLASS__ . ": Unable to access shared memory block '{$shmKey}' for reading.", self::EXCEPTION_SHMOP_READING_FAILED);
+				}
+			}
+			break;
+
+			case self::FILE_IO:
+			$this->mode = self::FILE_IO;
+			$this->resource = @fopen($rfile, 'r');
+			if ($this->resource === false) {
 				throw new \Exception(__CLASS__ . ": Unable to open file '{$rfile}'.", self::EXCEPTION_FILE_OPEN_FAILED);
 			}
-		}
-		break;
+			break;
 
-		default:
-	}
+			case self::MEMORY_CACHE:
+			$this->mode = self::MEMORY_CACHE;
+			$this->resource = $rfile;
+			if (!\array_key_exists($rfile, self::$buffer)) {
+				$limit = self::getMemoryLimit();
+				if ($limit !== false && $size > $limit) {
+					throw new \Exception(__CLASS__ . ": Insufficient memory to load file '{$rfile}'.", self::EXCEPTION_NO_MEMORY);
+				}
+
+				self::$buffer[$rfile] = @file_get_contents($rfile);
+				if (self::$buffer[$rfile] === false) {
+					throw new \Exception(__CLASS__ . ": Unable to open file '{$rfile}'.", self::EXCEPTION_FILE_OPEN_FAILED);
+				}
+			}
+			break;
+
+			default:
+		}
 
 		// determine the platform's float size
 		//
 		// NB: this should be a constant instead, and some unpack / typebanging magic
-		//     should be used to accomodate different float sizes, but, as the libreary
+		//     should be used to accomodate different float sizes, but, as the library
 		//     is written, this is the sanest thing to do anyway
 		//
 		if (self::$floatSize === null) {
@@ -794,13 +837,24 @@ class Database
 		$this->month = $this->readByte(4);
 		$this->day = $this->readByte(5);
 		$this->date = date('Y-m-d', strtotime("{$this->year}-{$this->month}-{$this->day}"));
+		$this->productCode = $this->readByte(30);
+		$this->licenseCode = $this->readByte(31);
+		$this->databaseSize = $this->readByte(32);
 
 		$this->ipCount[4] = $this->readWord(6);
 		$this->ipBase[4] = $this->readWord(10);		//hjlim readword
 		$this->ipCount[6] = $this->readWord(14);
 		$this->ipBase[6] = $this->readWord(18);
 		$this->indexBaseAddr[4] = $this->readWord(22);		//hjlim
-	$this->indexBaseAddr[6] = $this->readWord(26);		//hjlim
+		$this->indexBaseAddr[6] = $this->readWord(26);		//hjlim
+
+		if ($this->productCode == 1) {
+		} else {
+			if ($this->year <= 20 && $this->productCode == 0) {
+			} else {
+				throw new \Exception(__CLASS__ . ': Incorrect IP2Location BIN file format. Please make sure that you are using the latest IP2Location BIN file.', self::EXCEPTION_INVALID_BIN_DATABASE);
+			}
+		}
 	}
 
 	/**
@@ -809,21 +863,21 @@ class Database
 	public function __destruct()
 	{
 		switch ($this->mode) {
-		case self::FILE_IO:
-		// free the file pointer
-		if ($this->resource !== false) {
-			fclose($this->resource);
-			$this->resource = false;
+			case self::FILE_IO:
+			// free the file pointer
+			if ($this->resource !== false) {
+				fclose($this->resource);
+				$this->resource = false;
+			}
+			break;
+			case self::SHARED_MEMORY:
+			// detach from the memory segment
+			if ($this->resource !== false) {
+				shmop_close($this->resource);
+				$this->resource = false;
+			}
+			break;
 		}
-		break;
-		case self::SHARED_MEMORY:
-		// detach from the memory segment
-		if ($this->resource !== false) {
-			shmop_close($this->resource);
-			$this->resource = false;
-		}
-		break;
-	}
 	}
 
 	/**
@@ -831,7 +885,7 @@ class Database
 	 *
 	 * @static
 	 *
-	 * @param string $file Filename of the BIN database whise segment must be deleted
+	 * @param string $file Filename of the BIN database
 	 *
 	 * @throws \Exception
 	 */
@@ -847,7 +901,7 @@ class Database
 
 		// If the file cannot be found, except away
 		if ($rfile === false) {
-			throw new \Exception(__CLASS__ . ": Database file '{$file}' does not seem to exist.", self::EXCEPTION_DBFILE_NOT_FOUND);
+			throw new \Exception(__CLASS__ . ": Database file '{$file}' does not seem to exist.", self::EXCEPTION_DATABASE_FILE_NOT_FOUND);
 		}
 
 		$shmKey = self::getShmKey($rfile);
@@ -860,7 +914,6 @@ class Database
 
 		// Delete and close the descriptor
 		shmop_delete($shmId);
-		shmop_close($shmId);
 	}
 
 	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -890,7 +943,7 @@ class Database
 	/**
 	 * Return this database's available fields.
 	 *
-	 * @param bool $asNames Whether to return the mapped names intead of numbered constants
+	 * @param bool $asNames Whether to return the mapped names instead of numbered constants
 	 *
 	 * @return array
 	 */
@@ -932,7 +985,7 @@ class Database
 	 *
 	 * If a single, SINGULAR, field is specified, only its mapped value is returned.
 	 * If many fields are given (as an array) or a MULTIPLE field is specified, an
-	 * array whith the returned singular field names as keys and their corresponding
+	 * array with the returned singular field names as keys and their corresponding
 	 * values is returned.
 	 *
 	 * @param string    $ip      IP address to look up
@@ -945,8 +998,10 @@ class Database
 	{
 		// extract IP version and number
 		list($ipVersion, $ipNumber) = self::ipVersionAndNumber($ip);
+
 		// perform the binary search proper (if the IP address was invalid, binSearch will return false)
 		$pointer = $this->binSearch($ipVersion, $ipNumber);
+
 		if (empty($pointer)) {
 			return false;
 		}
@@ -978,6 +1033,8 @@ class Database
 			$ifields[] = self::NET_SPEED;
 			$ifields[] = self::ELEVATION;
 			$ifields[] = self::USAGE_TYPE;
+			$ifields[] = self::ADDRESS_TYPE;
+			$ifields[] = self::CATEGORY;
 
 			$ifields[] = self::COUNTRY;
 			$ifields[] = self::COORDINATES;
@@ -999,231 +1056,248 @@ class Database
 
 		// maintain a list of already retrieved fields to avoid doing it twice
 		$done = [
-		self::COUNTRY_CODE         => false,
-		self::COUNTRY_NAME         => false,
-		self::REGION_NAME          => false,
-		self::CITY_NAME            => false,
-		self::LATITUDE             => false,
-		self::LONGITUDE            => false,
-		self::ISP                  => false,
-		self::DOMAIN_NAME          => false,
-		self::ZIP_CODE             => false,
-		self::TIME_ZONE            => false,
-		self::NET_SPEED            => false,
-		self::IDD_CODE             => false,
-		self::AREA_CODE            => false,
-		self::WEATHER_STATION_CODE => false,
-		self::WEATHER_STATION_NAME => false,
-		self::MCC                  => false,
-		self::MNC                  => false,
-		self::MOBILE_CARRIER_NAME  => false,
-		self::ELEVATION            => false,
-		self::USAGE_TYPE           => false,
+			self::COUNTRY_CODE         => false,
+			self::COUNTRY_NAME         => false,
+			self::REGION_NAME          => false,
+			self::CITY_NAME            => false,
+			self::LATITUDE             => false,
+			self::LONGITUDE            => false,
+			self::ISP                  => false,
+			self::DOMAIN_NAME          => false,
+			self::ZIP_CODE             => false,
+			self::TIME_ZONE            => false,
+			self::NET_SPEED            => false,
+			self::IDD_CODE             => false,
+			self::AREA_CODE            => false,
+			self::WEATHER_STATION_CODE => false,
+			self::WEATHER_STATION_NAME => false,
+			self::MCC                  => false,
+			self::MNC                  => false,
+			self::MOBILE_CARRIER_NAME  => false,
+			self::ELEVATION            => false,
+			self::USAGE_TYPE           => false,
+			self::ADDRESS_TYPE         => false,
+			self::CATEGORY             => false,
 
-		self::COUNTRY                     => false,
-		self::COORDINATES                 => false,
-		self::IDD_AREA                    => false,
-		self::WEATHER_STATION             => false,
-		self::MCC_MNC_MOBILE_CARRIER_NAME => false,
+			self::COUNTRY                     => false,
+			self::COORDINATES                 => false,
+			self::IDD_AREA                    => false,
+			self::WEATHER_STATION             => false,
+			self::MCC_MNC_MOBILE_CARRIER_NAME => false,
 
-		self::IP_ADDRESS => false,
-		self::IP_VERSION => false,
-		self::IP_NUMBER  => false,
-	];
+			self::IP_ADDRESS => false,
+			self::IP_VERSION => false,
+			self::IP_NUMBER  => false,
+		];
+
 		// results are empty to begin with
 		$results = [];
 
 		// treat each field in turn
 		foreach ($afields as $afield) {
 			switch ($afield) {
-		// purposefully ignore self::ALL, we already dealt with it
-		case self::ALL: break;
+				// purposefully ignore self::ALL, we already dealt with it
+				case self::ALL: break;
 
-		case self::COUNTRY:
-			if (!$done[self::COUNTRY]) {
-				list($results[self::COUNTRY_NAME], $results[self::COUNTRY_CODE]) = $this->readCountryNameAndCode($pointer);
-				$done[self::COUNTRY] = true;
-				$done[self::COUNTRY_CODE] = true;
-				$done[self::COUNTRY_NAME] = true;
-			}
-			break;
-		case self::COORDINATES:
-			if (!$done[self::COORDINATES]) {
-				list($results[self::LATITUDE], $results[self::LONGITUDE]) = $this->readLatitudeAndLongitude($pointer);
-				$done[self::COORDINATES] = true;
-				$done[self::LATITUDE] = true;
-				$done[self::LONGITUDE] = true;
-			}
-			break;
-		case self::IDD_AREA:
-			if (!$done[self::IDD_AREA]) {
-				list($results[self::IDD_CODE], $results[self::AREA_CODE]) = $this->readIddAndAreaCodes($pointer);
-				$done[self::IDD_AREA] = true;
-				$done[self::IDD_CODE] = true;
-				$done[self::AREA_CODE] = true;
-			}
-			break;
-		case self::WEATHER_STATION:
-			if (!$done[self::WEATHER_STATION]) {
-				list($results[self::WEATHER_STATION_NAME], $results[self::WEATHER_STATION_CODE]) = $this->readWeatherStationNameAndCode($pointer);
-				$done[self::WEATHER_STATION] = true;
-				$done[self::WEATHER_STATION_NAME] = true;
-				$done[self::WEATHER_STATION_CODE] = true;
-			}
-			break;
-		case self::MCC_MNC_MOBILE_CARRIER_NAME:
-			if (!$done[self::MCC_MNC_MOBILE_CARRIER_NAME]) {
-				list($results[self::MCC], $results[self::MNC], $results[self::MOBILE_CARRIER_NAME]) = $this->readMccMncAndMobileCarrierName($pointer);
-				$done[self::MCC_MNC_MOBILE_CARRIER_NAME] = true;
-				$done[self::MCC] = true;
-				$done[self::MNC] = true;
-				$done[self::MOBILE_CARRIER_NAME] = true;
-			}
-			break;
+				case self::COUNTRY:
+					if (!$done[self::COUNTRY]) {
+						list($results[self::COUNTRY_NAME], $results[self::COUNTRY_CODE]) = $this->readCountryNameAndCode($pointer);
+						$done[self::COUNTRY] = true;
+						$done[self::COUNTRY_CODE] = true;
+						$done[self::COUNTRY_NAME] = true;
+					}
+					break;
+				case self::COORDINATES:
+					if (!$done[self::COORDINATES]) {
+						list($results[self::LATITUDE], $results[self::LONGITUDE]) = $this->readLatitudeAndLongitude($pointer);
+						$done[self::COORDINATES] = true;
+						$done[self::LATITUDE] = true;
+						$done[self::LONGITUDE] = true;
+					}
+					break;
+				case self::IDD_AREA:
+					if (!$done[self::IDD_AREA]) {
+						list($results[self::IDD_CODE], $results[self::AREA_CODE]) = $this->readIddAndAreaCodes($pointer);
+						$done[self::IDD_AREA] = true;
+						$done[self::IDD_CODE] = true;
+						$done[self::AREA_CODE] = true;
+					}
+					break;
+				case self::WEATHER_STATION:
+					if (!$done[self::WEATHER_STATION]) {
+						list($results[self::WEATHER_STATION_NAME], $results[self::WEATHER_STATION_CODE]) = $this->readWeatherStationNameAndCode($pointer);
+						$done[self::WEATHER_STATION] = true;
+						$done[self::WEATHER_STATION_NAME] = true;
+						$done[self::WEATHER_STATION_CODE] = true;
+					}
+					break;
+				case self::MCC_MNC_MOBILE_CARRIER_NAME:
+					if (!$done[self::MCC_MNC_MOBILE_CARRIER_NAME]) {
+						list($results[self::MCC], $results[self::MNC], $results[self::MOBILE_CARRIER_NAME]) = $this->readMccMncAndMobileCarrierName($pointer);
+						$done[self::MCC_MNC_MOBILE_CARRIER_NAME] = true;
+						$done[self::MCC] = true;
+						$done[self::MNC] = true;
+						$done[self::MOBILE_CARRIER_NAME] = true;
+					}
+					break;
 
-		case self::COUNTRY_CODE:
-			if (!$done[self::COUNTRY_CODE]) {
-				$results[self::COUNTRY_CODE] = $this->readCountryNameAndCode($pointer)[1];
-				$done[self::COUNTRY_CODE] = true;
-			}
-			break;
-		case self::COUNTRY_NAME:
-			if (!$done[self::COUNTRY_NAME]) {
-				$results[self::COUNTRY_NAME] = $this->readCountryNameAndCode($pointer)[0];
-				$done[self::COUNTRY_NAME] = true;
-			}
-			break;
-		case self::REGION_NAME:
-			if (!$done[self::REGION_NAME]) {
-				$results[self::REGION_NAME] = $this->readRegionName($pointer);
-				$done[self::REGION_NAME] = true;
-			}
-			break;
-		case self::CITY_NAME:
-			if (!$done[self::CITY_NAME]) {
-				$results[self::CITY_NAME] = $this->readCityName($pointer);
-				$done[self::CITY_NAME] = true;
-			}
-			break;
-		case self::LATITUDE:
-			if (!$done[self::LATITUDE]) {
-				$results[self::LATITUDE] = $this->readLatitudeAndLongitude($pointer)[0];
-				$done[self::LATITUDE] = true;
-			}
-			break;
-		case self::LONGITUDE:
-			if (!$done[self::LONGITUDE]) {
-				$results[self::LONGITUDE] = $this->readLatitudeAndLongitude($pointer)[1];
-				$done[self::LONGITUDE] = true;
-			}
-			break;
-		case self::ISP:
-			if (!$done[self::ISP]) {
-				$results[self::ISP] = $this->readIsp($pointer);
-				$done[self::ISP] = true;
-			}
-			break;
-		case self::DOMAIN_NAME:
-			if (!$done[self::DOMAIN_NAME]) {
-				$results[self::DOMAIN_NAME] = $this->readDomainName($pointer);
-				$done[self::DOMAIN_NAME] = true;
-			}
-			break;
-		case self::ZIP_CODE:
-			if (!$done[self::ZIP_CODE]) {
-				$results[self::ZIP_CODE] = $this->readZipCode($pointer);
-				$done[self::ZIP_CODE] = true;
-			}
-			break;
-		case self::TIME_ZONE:
-			if (!$done[self::TIME_ZONE]) {
-				$results[self::TIME_ZONE] = $this->readTimeZone($pointer);
-				$done[self::TIME_ZONE] = true;
-			}
-			break;
-		case self::NET_SPEED:
-			if (!$done[self::NET_SPEED]) {
-				$results[self::NET_SPEED] = $this->readNetSpeed($pointer);
-				$done[self::NET_SPEED] = true;
-			}
-			break;
-		case self::IDD_CODE:
-			if (!$done[self::IDD_CODE]) {
-				$results[self::IDD_CODE] = $this->readIddAndAreaCodes($pointer)[0];
-				$done[self::IDD_CODE] = true;
-			}
-			break;
-		case self::AREA_CODE:
-			if (!$done[self::AREA_CODE]) {
-				$results[self::AREA_CODE] = $this->readIddAndAreaCodes($pointer)[1];
-				$done[self::AREA_CODE] = true;
-			}
-			break;
-		case self::WEATHER_STATION_CODE:
-			if (!$done[self::WEATHER_STATION_CODE]) {
-				$results[self::WEATHER_STATION_CODE] = $this->readWeatherStationNameAndCode($pointer)[1];
-				$done[self::WEATHER_STATION_CODE] = true;
-			}
-			break;
-		case self::WEATHER_STATION_NAME:
-			if (!$done[self::WEATHER_STATION_NAME]) {
-				$results[self::WEATHER_STATION_NAME] = $this->readWeatherStationNameAndCode($pointer)[0];
-				$done[self::WEATHER_STATION_NAME] = true;
-			}
-			break;
-		case self::MCC:
-			if (!$done[self::MCC]) {
-				$results[self::MCC] = $this->readMccMncAndMobileCarrierName($pointer)[0];
-				$done[self::MCC] = true;
-			}
-			break;
-		case self::MNC:
-			if (!$done[self::MNC]) {
-				$results[self::MNC] = $this->readMccMncAndMobileCarrierName($pointer)[1];
-				$done[self::MNC] = true;
-			}
-			break;
-		case self::MOBILE_CARRIER_NAME:
-			if (!$done[self::MOBILE_CARRIER_NAME]) {
-				$results[self::MOBILE_CARRIER_NAME] = $this->readMccMncAndMobileCarrierName($pointer)[2];
-				$done[self::MOBILE_CARRIER_NAME] = true;
-			}
-			break;
-		case self::ELEVATION:
-			if (!$done[self::ELEVATION]) {
-				$results[self::ELEVATION] = $this->readElevation($pointer);
-				$done[self::ELEVATION] = true;
-			}
-			break;
-		case self::USAGE_TYPE:
-			if (!$done[self::USAGE_TYPE]) {
-				$results[self::USAGE_TYPE] = $this->readUsageType($pointer);
-				$done[self::USAGE_TYPE] = true;
-			}
-			break;
+				case self::COUNTRY_CODE:
+					if (!$done[self::COUNTRY_CODE]) {
+						$results[self::COUNTRY_CODE] = $this->readCountryNameAndCode($pointer)[1];
+						$done[self::COUNTRY_CODE] = true;
+					}
+					break;
+				case self::COUNTRY_NAME:
+					if (!$done[self::COUNTRY_NAME]) {
+						$results[self::COUNTRY_NAME] = $this->readCountryNameAndCode($pointer)[0];
+						$done[self::COUNTRY_NAME] = true;
+					}
+					break;
+				case self::REGION_NAME:
+					if (!$done[self::REGION_NAME]) {
+						$results[self::REGION_NAME] = $this->readRegionName($pointer);
+						$done[self::REGION_NAME] = true;
+					}
+					break;
+				case self::CITY_NAME:
+					if (!$done[self::CITY_NAME]) {
+						$results[self::CITY_NAME] = $this->readCityName($pointer);
+						$done[self::CITY_NAME] = true;
+					}
+					break;
+				case self::LATITUDE:
+					if (!$done[self::LATITUDE]) {
+						$results[self::LATITUDE] = $this->readLatitudeAndLongitude($pointer)[0];
+						$done[self::LATITUDE] = true;
+					}
+					break;
+				case self::LONGITUDE:
+					if (!$done[self::LONGITUDE]) {
+						$results[self::LONGITUDE] = $this->readLatitudeAndLongitude($pointer)[1];
+						$done[self::LONGITUDE] = true;
+					}
+					break;
+				case self::ISP:
+					if (!$done[self::ISP]) {
+						$results[self::ISP] = $this->readIsp($pointer);
+						$done[self::ISP] = true;
+					}
+					break;
+				case self::DOMAIN_NAME:
+					if (!$done[self::DOMAIN_NAME]) {
+						$results[self::DOMAIN_NAME] = $this->readDomainName($pointer);
+						$done[self::DOMAIN_NAME] = true;
+					}
+					break;
+				case self::ZIP_CODE:
+					if (!$done[self::ZIP_CODE]) {
+						$results[self::ZIP_CODE] = $this->readZipCode($pointer);
+						$done[self::ZIP_CODE] = true;
+					}
+					break;
+				case self::TIME_ZONE:
+					if (!$done[self::TIME_ZONE]) {
+						$results[self::TIME_ZONE] = $this->readTimeZone($pointer);
+						$done[self::TIME_ZONE] = true;
+					}
+					break;
+				case self::NET_SPEED:
+					if (!$done[self::NET_SPEED]) {
+						$results[self::NET_SPEED] = $this->readNetSpeed($pointer);
+						$done[self::NET_SPEED] = true;
+					}
+					break;
+				case self::IDD_CODE:
+					if (!$done[self::IDD_CODE]) {
+						$results[self::IDD_CODE] = $this->readIddAndAreaCodes($pointer)[0];
+						$done[self::IDD_CODE] = true;
+					}
+					break;
+				case self::AREA_CODE:
+					if (!$done[self::AREA_CODE]) {
+						$results[self::AREA_CODE] = $this->readIddAndAreaCodes($pointer)[1];
+						$done[self::AREA_CODE] = true;
+					}
+					break;
+				case self::WEATHER_STATION_CODE:
+					if (!$done[self::WEATHER_STATION_CODE]) {
+						$results[self::WEATHER_STATION_CODE] = $this->readWeatherStationNameAndCode($pointer)[1];
+						$done[self::WEATHER_STATION_CODE] = true;
+					}
+					break;
+				case self::WEATHER_STATION_NAME:
+					if (!$done[self::WEATHER_STATION_NAME]) {
+						$results[self::WEATHER_STATION_NAME] = $this->readWeatherStationNameAndCode($pointer)[0];
+						$done[self::WEATHER_STATION_NAME] = true;
+					}
+					break;
+				case self::MCC:
+					if (!$done[self::MCC]) {
+						$results[self::MCC] = $this->readMccMncAndMobileCarrierName($pointer)[0];
+						$done[self::MCC] = true;
+					}
+					break;
+				case self::MNC:
+					if (!$done[self::MNC]) {
+						$results[self::MNC] = $this->readMccMncAndMobileCarrierName($pointer)[1];
+						$done[self::MNC] = true;
+					}
+					break;
+				case self::MOBILE_CARRIER_NAME:
+					if (!$done[self::MOBILE_CARRIER_NAME]) {
+						$results[self::MOBILE_CARRIER_NAME] = $this->readMccMncAndMobileCarrierName($pointer)[2];
+						$done[self::MOBILE_CARRIER_NAME] = true;
+					}
+					break;
+				case self::ELEVATION:
+					if (!$done[self::ELEVATION]) {
+						$results[self::ELEVATION] = $this->readElevation($pointer);
+						$done[self::ELEVATION] = true;
+					}
+					break;
+				case self::USAGE_TYPE:
+					if (!$done[self::USAGE_TYPE]) {
+						$results[self::USAGE_TYPE] = $this->readUsageType($pointer);
+						$done[self::USAGE_TYPE] = true;
+					}
+					break;
 
-		case self::IP_ADDRESS:
-			if (!$done[self::IP_ADDRESS]) {
-				$results[self::IP_ADDRESS] = $ip;
-				$done[self::IP_ADDRESS] = true;
-			}
-			break;
-		case self::IP_VERSION:
-			if (!$done[self::IP_VERSION]) {
-				$results[self::IP_VERSION] = $ipVersion;
-				$done[self::IP_VERSION] = true;
-			}
-			break;
-		case self::IP_NUMBER:
-			if (!$done[self::IP_NUMBER]) {
-				$results[self::IP_NUMBER] = $ipNumber;
-				$done[self::IP_NUMBER] = true;
-			}
-			break;
+				case self::ADDRESS_TYPE:
+					if (!$done[self::ADDRESS_TYPE]) {
+						$results[self::ADDRESS_TYPE] = $this->readAddressType($pointer);
+						$done[self::ADDRESS_TYPE] = true;
+					}
+					break;
 
-		default:
-			$results[$afield] = self::FIELD_NOT_KNOWN;
-		}
+				case self::CATEGORY:
+					if (!$done[self::CATEGORY]) {
+						$results[self::CATEGORY] = $this->readCategory($pointer);
+						$done[self::CATEGORY] = true;
+					}
+					break;
+
+				case self::IP_ADDRESS:
+					if (!$done[self::IP_ADDRESS]) {
+						$results[self::IP_ADDRESS] = $ip;
+						$done[self::IP_ADDRESS] = true;
+					}
+					break;
+				case self::IP_VERSION:
+					if (!$done[self::IP_VERSION]) {
+						$results[self::IP_VERSION] = $ipVersion;
+						$done[self::IP_VERSION] = true;
+					}
+					break;
+				case self::IP_NUMBER:
+					if (!$done[self::IP_NUMBER]) {
+						$results[self::IP_NUMBER] = $ipNumber;
+						$done[self::IP_NUMBER] = true;
+					}
+					break;
+
+				default:
+					$results[$afield] = self::FIELD_NOT_KNOWN;
+			}
 		}
 
 		// If we were asked for an array, or we have multiple results to return...
@@ -1268,7 +1342,7 @@ class Database
 
 			list($ipFrom, $ipTo) = $records;
 
-			$ipTo -= 1;
+			--$ipTo;
 
 			while ($ipTo >= $ipFrom) {
 				$maxSize = self::getMaxSize($ipFrom, 32);
@@ -1377,12 +1451,12 @@ class Database
 			} else {
 				// Deal with shorthand bytes
 				switch (strtoupper(substr($limit, -1))) {
-			case 'G': $value *= 1024;
-			// no break
-			case 'M': $value *= 1024;
-			// no break
-			case 'K': $value *= 1024;
-		}
+					case 'G': $value *= 1024;
+					// no break
+					case 'M': $value *= 1024;
+					// no break
+					case 'K': $value *= 1024;
+				}
 			}
 			self::$memoryLimit = $value;
 		}
@@ -1407,7 +1481,7 @@ class Database
 
 			// If the file cannot be found, except away
 			if ($rfile === false) {
-				throw new \Exception(__CLASS__ . ": Database file '{$file}' does not seem to exist.", self::EXCEPTION_DBFILE_NOT_FOUND);
+				throw new \Exception(__CLASS__ . ": Database file '{$file}' does not seem to exist.", self::EXCEPTION_DATABASE_FILE_NOT_FOUND);
 			}
 
 			return $rfile;
@@ -1532,17 +1606,40 @@ class Database
 	private static function ipVersionAndNumber($ip)
 	{
 		if (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4)) {
-			return [4, sprintf('%u', ip2long($ip))];
+			$number = sprintf('%u', ip2long($ip));
+
+			return [4, ($number == self::MAX_IPV4_RANGE) ? ($number - 1) : $number];
 		} elseif (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6)) {
 			$result = 0;
+			$ip = self::expand($ip);
+
+			// 6to4 Address - 2002::/16
+			if (substr($ip, 0, 4) == '2002') {
+				foreach (str_split(bin2hex(inet_pton($ip)), 8) as $word) {
+					$result = bcadd(bcmul($result, '4294967296', 0), self::wrap32(hexdec($word)), 0);
+				}
+
+				return [4, bcmod(bcdiv($result, bcpow(2, 80)), '4294967296')];
+			}
+
+			// Teredo Address - 2001:0::/32
+			if (substr($ip, 0, 9) == '2001:0000' && str_replace(':', '', substr($ip, -9)) != '00000000') {
+				return [4, ip2long(long2ip(~hexdec(str_replace(':', '', substr($ip, -9)))))];
+			}
 
 			foreach (str_split(bin2hex(inet_pton($ip)), 8) as $word) {
 				$result = bcadd(bcmul($result, '4294967296', 0), self::wrap32(hexdec($word)), 0);
 			}
 
+			// IPv4 address in IPv6
+			if (bccomp($result, '281470681743360') >= 0 && bccomp($result, '281474976710655') <= 0) {
+				return [4, bcsub($result, '281470681743360')];
+			}
+
 			return [6, $result];
 		}
-		// Invalid IP address, return falses
+
+		// Invalid IP address, return false
 		return [false, false];
 	}
 
@@ -1557,12 +1654,16 @@ class Database
 	 */
 	private static function bcBin2Dec($data)
 	{
+		if (!$data) {
+			return;
+		}
+
 		$parts = [
-		unpack('V', substr($data, 12, 4)),
-		unpack('V', substr($data, 8, 4)),
-		unpack('V', substr($data, 4, 4)),
-		unpack('V', substr($data, 0, 4)),
-	];
+			unpack('V', substr($data, 12, 4)),
+			unpack('V', substr($data, 8, 4)),
+			unpack('V', substr($data, 4, 4)),
+			unpack('V', substr($data, 0, 4)),
+		];
 
 		foreach ($parts as &$part) {
 			if ($part[1] < 0) {
@@ -1573,6 +1674,22 @@ class Database
 		$result = bcadd(bcadd(bcmul($parts[0][1], bcpow(4294967296, 3)), bcmul($parts[1][1], bcpow(4294967296, 2))), bcadd(bcmul($parts[2][1], 4294967296), $parts[3][1]));
 
 		return $result;
+	}
+
+	/**
+	 * Return the decimal string representing the binary data given.
+	 *
+	 * @static
+	 *
+	 * @param mixed $ipv6
+	 *
+	 * @return string
+	 */
+	private static function expand($ipv6)
+	{
+		$hex = unpack('H*hex', inet_pton($ipv6));
+
+		return substr(preg_replace('/([A-f0-9]{4})/', '$1:', $hex['hex']), 0, -1);
 	}
 
 	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1590,17 +1707,16 @@ class Database
 	private function read($pos, $len)
 	{
 		switch ($this->mode) {
-		case self::SHARED_MEMORY:
-		return shmop_read($this->resource, $pos, $len);
+			case self::SHARED_MEMORY:
+				return shmop_read($this->resource, $pos, $len);
 
-		case self::MEMORY_CACHE:
-		return $data = substr(self::$buffer[$this->resource], $pos, $len);
+			case self::MEMORY_CACHE:
+				return $data = substr(self::$buffer[$this->resource], $pos, $len);
 
-		default:
-		fseek($this->resource, $pos, SEEK_SET);
-
-		return fread($this->resource, $len);
-	}
+			default:
+				fseek($this->resource, $pos, SEEK_SET);
+				return fread($this->resource, $len);
+		}
 	}
 
 	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1618,10 +1734,10 @@ class Database
 	private function readString($pos, $additional = 0)
 	{
 		// Get the actual pointer to the string's head by extract from the raw row
-		$spos = unpack('V', substr($this->rawPositionsRow, $pos, 4))[1] + $additional;
+		$newPosition = unpack('V', substr($this->rawPositionsRow, $pos, 4))[1] + $additional;
 
 		// Read as much as the length (first "string" byte) indicates
-		return $this->read($spos + 1, $this->readByte($spos + 1));
+		return $this->read($newPosition + 1, $this->readByte($newPosition + 1));
 	}
 
 	/**
@@ -1694,7 +1810,7 @@ class Database
 			$countryCode = self::INVALID_IP_ADDRESS;
 			$countryName = self::INVALID_IP_ADDRESS;
 		} elseif (self::$columns[self::COUNTRY_CODE][$this->type] === 0) {
-			// If the field is not suported, return accordingly
+			// If the field is not supported, return accordingly
 			$countryCode = self::FIELD_NOT_SUPPORTED;
 			$countryName = self::FIELD_NOT_SUPPORTED;
 		} else {
@@ -1721,7 +1837,7 @@ class Database
 			// Deal with invalid IPs
 			$regionName = self::INVALID_IP_ADDRESS;
 		} elseif (self::$columns[self::REGION_NAME][$this->type] === 0) {
-			// If the field is not suported, return accordingly
+			// If the field is not supported, return accordingly
 			$regionName = self::FIELD_NOT_SUPPORTED;
 		} else {
 			// Read the region name
@@ -1744,7 +1860,7 @@ class Database
 			// Deal with invalid IPs
 			$cityName = self::INVALID_IP_ADDRESS;
 		} elseif (self::$columns[self::CITY_NAME][$this->type] === 0) {
-			// If the field is not suported, return accordingly
+			// If the field is not supported, return accordingly
 			$cityName = self::FIELD_NOT_SUPPORTED;
 		} else {
 			// Read the city name
@@ -1768,7 +1884,7 @@ class Database
 			$latitude = self::INVALID_IP_ADDRESS;
 			$longitude = self::INVALID_IP_ADDRESS;
 		} elseif (self::$columns[self::LATITUDE][$this->type] === 0) {
-			// If the field is not suported, return accordingly
+			// If the field is not supported, return accordingly
 			$latitude = self::FIELD_NOT_SUPPORTED;
 			$longitude = self::FIELD_NOT_SUPPORTED;
 		} else {
@@ -1793,7 +1909,7 @@ class Database
 			// Deal with invalid IPs
 			$isp = self::INVALID_IP_ADDRESS;
 		} elseif (self::$columns[self::ISP][$this->type] === 0) {
-			// If the field is not suported, return accordingly
+			// If the field is not supported, return accordingly
 			$isp = self::FIELD_NOT_SUPPORTED;
 		} else {
 			// Read isp name
@@ -1816,7 +1932,7 @@ class Database
 			// Deal with invalid IPs
 			$domainName = self::INVALID_IP_ADDRESS;
 		} elseif (self::$columns[self::DOMAIN_NAME][$this->type] === 0) {
-			// If the field is not suported, return accordingly
+			// If the field is not supported, return accordingly
 			$domainName = self::FIELD_NOT_SUPPORTED;
 		} else {
 			// Read the domain name
@@ -1839,7 +1955,7 @@ class Database
 			// Deal with invalid IPs
 			$zipCode = self::INVALID_IP_ADDRESS;
 		} elseif (self::$columns[self::ZIP_CODE][$this->type] === 0) {
-			// If the field is not suported, return accordingly
+			// If the field is not supported, return accordingly
 			$zipCode = self::FIELD_NOT_SUPPORTED;
 		} else {
 			// Read the zip code
@@ -1862,7 +1978,7 @@ class Database
 			// Deal with invalid IPs
 			$timeZone = self::INVALID_IP_ADDRESS;
 		} elseif (self::$columns[self::TIME_ZONE][$this->type] === 0) {
-			// If the field is not suported, return accordingly
+			// If the field is not supported, return accordingly
 			$timeZone = self::FIELD_NOT_SUPPORTED;
 		} else {
 			// Read the time zone
@@ -1885,7 +2001,7 @@ class Database
 			// Deal with invalid IPs
 			$netSpeed = self::INVALID_IP_ADDRESS;
 		} elseif (self::$columns[self::NET_SPEED][$this->type] === 0) {
-			// If the field is not suported, return accordingly
+			// If the field is not supported, return accordingly
 			$netSpeed = self::FIELD_NOT_SUPPORTED;
 		} else {
 			// Read the net speed
@@ -1909,7 +2025,7 @@ class Database
 			$iddCode = self::INVALID_IP_ADDRESS;
 			$areaCode = self::INVALID_IP_ADDRESS;
 		} elseif (self::$columns[self::IDD_CODE][$this->type] === 0) {
-			// If the field is not suported, return accordingly
+			// If the field is not supported, return accordingly
 			$iddCode = self::FIELD_NOT_SUPPORTED;
 			$areaCode = self::FIELD_NOT_SUPPORTED;
 		} else {
@@ -1935,7 +2051,7 @@ class Database
 			$weatherStationName = self::INVALID_IP_ADDRESS;
 			$weatherStationCode = self::INVALID_IP_ADDRESS;
 		} elseif (self::$columns[self::WEATHER_STATION_NAME][$this->type] === 0) {
-			// If the field is not suported, return accordingly
+			// If the field is not supported, return accordingly
 			$weatherStationName = self::FIELD_NOT_SUPPORTED;
 			$weatherStationCode = self::FIELD_NOT_SUPPORTED;
 		} else {
@@ -1962,7 +2078,7 @@ class Database
 			$mnc = self::INVALID_IP_ADDRESS;
 			$mobileCarrierName = self::INVALID_IP_ADDRESS;
 		} elseif (self::$columns[self::MCC][$this->type] === 0) {
-			// If the field is not suported, return accordingly
+			// If the field is not supported, return accordingly
 			$mcc = self::FIELD_NOT_SUPPORTED;
 			$mnc = self::FIELD_NOT_SUPPORTED;
 			$mobileCarrierName = self::FIELD_NOT_SUPPORTED;
@@ -1989,7 +2105,7 @@ class Database
 			// Deal with invalid IPs
 			$elevation = self::INVALID_IP_ADDRESS;
 		} elseif (self::$columns[self::ELEVATION][$this->type] === 0) {
-			// If the field is not suported, return accordingly
+			// If the field is not supported, return accordingly
 			$elevation = self::FIELD_NOT_SUPPORTED;
 		} else {
 			// Read the elevation
@@ -2012,13 +2128,57 @@ class Database
 			// Deal with invalid IPs
 			$usageType = self::INVALID_IP_ADDRESS;
 		} elseif (self::$columns[self::USAGE_TYPE][$this->type] === 0) {
-			// If the field is not suported, return accordingly
+			// If the field is not supported, return accordingly
 			$usageType = self::FIELD_NOT_SUPPORTED;
 		} else {
 			$usageType = $this->readString(self::$columns[self::USAGE_TYPE][$this->type]);
 		}
 
 		return $usageType;
+	}
+
+	/**
+	 * High level function to fetch the address type.
+	 *
+	 * @param int $pointer Position to read from, if false, return self::INVALID_IP_ADDRESS
+	 *
+	 * @return string
+	 */
+	private function readAddressType($pointer)
+	{
+		if ($pointer === false) {
+			// Deal with invalid IPs
+			$addressType = self::INVALID_IP_ADDRESS;
+		} elseif (self::$columns[self::ADDRESS_TYPE][$this->type] === 0) {
+			// If the field is not supported, return accordingly
+			$addressType = self::FIELD_NOT_SUPPORTED;
+		} else {
+			$addressType = $this->readString(self::$columns[self::ADDRESS_TYPE][$this->type]);
+		}
+
+		return $addressType;
+	}
+
+	/**
+	 * High level function to fetch the usage type.
+	 *
+	 * @param int $pointer Position to read from, if false, return self::INVALID_IP_ADDRESS
+	 *
+	 * @return string
+	 */
+	private function readCategory($pointer)
+	{
+		if ($pointer === false) {
+			// Deal with invalid IPs
+			$category = self::INVALID_IP_ADDRESS;
+		} elseif (self::$columns[self::CATEGORY][$this->type] === 0) {
+			// If the field is not supported, return accordingly
+			$category = self::FIELD_NOT_SUPPORTED;
+		} else {
+			$category = $this->readString(self::$columns[self::CATEGORY][$this->type]);
+		}
+
+		return $category;
 	}
 
 	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -2071,24 +2231,25 @@ class Database
 
 		//hjlim
 		$indexBaseStart = $this->indexBaseAddr[$version];
-		if ($indexBaseStart > 0) {
+		if ($indexBaseStart > 1) {
 			$indexPos = 0;
+
 			switch ($version) {
-			case 4:
-				$ipNum1_2 = (int) ($ipNumber / 65536);
-				$indexPos = $indexBaseStart + ($ipNum1_2 << 3);
+				case 4:
+					$ipNum1_2 = (int) ($ipNumber / 65536);
+					$indexPos = $indexBaseStart + ($ipNum1_2 << 3);
 
-				break;
+					break;
 
-			case 6:
-				$ipNum1 = (int) (bcdiv($ipNumber, bcpow('2', '112')));
-				$indexPos = $indexBaseStart + ($ipNum1 << 3);
+				case 6:
+					$ipNum1 = (int) (bcdiv($ipNumber, bcpow('2', '112')));
+					$indexPos = $indexBaseStart + ($ipNum1 << 3);
 
-				break;
+					break;
 
-			default:
-				return false;
-		}
+				default:
+					return false;
+			}
 
 			$low = $this->readWord($indexPos);
 			$high = $this->readWord($indexPos + 4);
@@ -2099,163 +2260,25 @@ class Database
 			$mid = (int) ($low + (($high - $low) >> 1));
 
 			// Read IP ranges to get boundaries
-			$ip_from = $this->readIp($version, $base + $width * $mid);
-			$ip_to = $this->readIp($version, $base + $width * ($mid + 1));
+			$ipStart = $this->readIp($version, $base + $width * $mid);
+			$ipEnd = $this->readIp($version, $base + $width * ($mid + 1));
 
 			// determine whether to return, repeat on the lower half, or repeat on the upper half
-			switch (self::ipBetween($version, $ipNumber, $ip_from, $ip_to)) {
-		case 0:
-			return ($cidr) ? [$ip_from, $ip_to] : $base + $offset + $mid * $width;
-		case -1:
-			$high = $mid - 1;
-			break;
-		case 1:
-			$low = $mid + 1;
-			break;
-	}
+			switch (self::ipBetween($version, $ipNumber, $ipStart, $ipEnd)) {
+				case 0:
+					return ($cidr) ? [$ipStart, $ipEnd] : $base + $offset + $mid * $width;
+
+				case -1:
+					$high = $mid - 1;
+					break;
+
+				case 1:
+					$low = $mid + 1;
+					break;
+			}
 		}
 
 		// nothing found
-		return false;
-	}
-}
-
-/**
- * IP2Location web service class.
- */
-class WebService
-{
-	/**
-	 * No cURL extension found.
-	 *
-	 * @var int
-	 */
-	public const EXCEPTION_NO_CURL = 10001;
-
-	/**
-	 * Invalid API key format.
-	 *
-	 * @var int
-	 */
-	public const EXCEPTION_INVALID_API_KEY = 10002;
-
-	/**
-	 * Web service error.
-	 *
-	 * @var int
-	 */
-	public const EXCEPTION_WEB_SERVICE_ERROR = 10003;
-
-	/**
-	 * Constructor.
-	 *
-	 * @param string $apiKey  API key of your IP2Location web service
-	 * @param string $package Supported IP2Location package from WS1 to WS24
-	 * @param bool   $useSsl  Enable or disabled HTTPS connection. HTTP is faster but less secure.
-	 *
-	 * @throws \Exception
-	 */
-	public function __construct($apiKey, $package = 'WS1', $useSsl = false)
-	{
-		if (!\extension_loaded('curl')) {
-			throw new \Exception(__CLASS__ . ": Please make sure your PHP setup has the 'curl' extension enabled.", self::EXCEPTION_NO_CURL);
-		}
-
-		if (!preg_match('/^[0-9A-Z]{10}$/', $apiKey) && $apiKey != 'demo') {
-			throw new \Exception(__CLASS__ . ': Please provide a valid IP2Location web service API key.', self::EXCEPTION_INVALID_API_KEY);
-		}
-
-		if (!preg_match('/^WS[0-9]+$/', $package)) {
-			$package = 'WS1';
-		}
-
-		$this->apiKey = $apiKey;
-		$this->package = $package;
-		$this->useSsl = $useSsl;
-	}
-
-	/**
-	 * This function will look the given IP address up in IP2Location web service.
-	 *
-	 * @param string $ip       IP address to look up
-	 * @param array  $addOns   Extra fields to return. Please refer to https://www.ip2location.com/web-service/ip2location
-	 * @param string $language the translation for continent, country, region and city name for the addon package
-	 *
-	 * @throws \Exception
-	 *
-	 * @return array|false
-	 */
-	public function lookup($ip, $addOns = [], $language = 'en')
-	{
-		$response = $this->httpRequest('http://api.ip2location.com/v2/?' . http_build_query([
-			'key'     => $this->apiKey,
-			'ip'      => $ip,
-			'package' => $this->package,
-			'addon'   => implode(',', $addOns),
-			'lang'    => $language,
-		]));
-
-		if (($data = json_decode($response, true)) === null) {
-			return false;
-		}
-
-		if (isset($data['response'])) {
-			throw new \Exception(__CLASS__ . ': ' . $data['response'], self::EXCEPTION_WEB_SERVICE_ERROR);
-		}
-
-		return $data;
-	}
-
-	/**
-	 * Get the remaing credit in your IP2Location web service account.
-	 *
-	 * @return int
-	 */
-	public function getCredit()
-	{
-		$response = $this->httpRequest('http://api.ip2location.com/v2/?' . http_build_query([
-			'key'   => $this->apiKey,
-			'check' => true,
-		]));
-
-		if (($data = json_decode($response, true)) === null) {
-			return 0;
-		}
-
-		if (!isset($data['response'])) {
-			return 0;
-		}
-
-		return $data['response'];
-	}
-
-	/**
-	 * Open a remote web address.
-	 *
-	 * @param string $url Website URL
-	 *
-	 * @return bool|string
-	 */
-	private function httpRequest($url)
-	{
-		$ch = curl_init();
-		curl_setopt($ch, CURLOPT_URL, $url);
-		curl_setopt($ch, CURLOPT_FAILONERROR, 1);
-		curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
-		curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
-		curl_setopt($ch, CURLOPT_TIMEOUT, 30);
-
-		$response = curl_exec($ch);
-
-		if (!curl_errno($ch)) {
-			curl_close($ch);
-
-			return $response;
-		}
-
-		curl_close($ch);
-
 		return false;
 	}
 }

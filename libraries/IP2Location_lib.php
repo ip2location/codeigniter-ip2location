@@ -1,4 +1,5 @@
-<?php namespace App\Libraries;
+<?php
+(defined('BASEPATH') || defined('SYSPATH')) or die('No direct access allowed.');
 
 // BIN Database Setting
 if(!defined('IP2LOCATION_DATABASE')) {
@@ -26,7 +27,10 @@ if(!defined('IP2LOCATION_LANGUAGE')) {
 	define('IP2LOCATION_LANGUAGE', 'en');
 }
 
-require_once('ip2location/IP2Location.php');
+require_once('ip2location/Country.php');
+require_once('ip2location/Database.php');
+require_once('ip2location/IpTools.php');
+require_once('ip2location/WebService.php');
 
 class IP2Location_lib {
 	private $database;
@@ -114,6 +118,14 @@ class IP2Location_lib {
 
 	public function getUsageType($ip=NULL) {
 		return self::$ip2location->lookup(self::getIP($ip), \IP2Location\Database::USAGE_TYPE);
+	}
+
+	public function getAddressType($ip=NULL) {
+		return self::$ip2location->lookup(self::getIP($ip), \IP2Location\Database::ADDRESS_TYPE);
+	}
+
+	public function getCategory($ip=NULL) {
+		return self::$ip2location->lookup(self::getIP($ip), \IP2Location\Database::CATEGORY);
 	}
 
 	public function getWebService($ip=NULL) {

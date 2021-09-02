@@ -16,6 +16,8 @@ This module enables users to retrieve below geolocation information from an IP a
 * Weather Station Information
 * Elevation
 * Usage Type
+* Address Type
+* Category
 
 
 ## Installation
@@ -57,6 +59,8 @@ Below are the methods supported for BIN data file lookup.
     $mobileCarrierName = $ipl->getMobileCarrierName($ip);
     $elevation = $ipl->getElevation($ip);
     $usageType = $ipl->getUsageType($ip);
+    $addressType = $ipl->getAddressType($ip);
+    $category = $ipl->getCategory($ip);
 
 ### Web Service
 Use following codes in your application for get geolocation information.
