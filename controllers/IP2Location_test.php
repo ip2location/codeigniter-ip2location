@@ -27,5 +27,19 @@ class IP2Location_test extends CI_Controller {
         echo '<pre>';
         print_r ($ipl->getWebService('8.8.8.8'));
         echo '</pre>';
+
+        // IPTools
+        var_dump($ipl->isIpv4('8.8.8.8'));echo '<br>';
+        var_dump($ipl->isIpv6('2001:4860:4860::8888'));echo '<br>';
+        print_r($ipl->ipv4ToDecimal('8.8.8.8'));echo '<br>';
+        print_r($ipl->decimalToIpv4(134744072));echo '<br>';
+        print_r($ipl->ipv6ToDecimal('2001:4860:4860::8888'));echo '<br>';
+        print_r($ipl->decimalToIpv6('42541956123769884636017138956568135816'));echo '<br>';
+        print_r($ipl->ipv4ToCidr('8.0.0.0', '8.255.255.255'));echo '<br>';
+        print_r($ipl->cidrToIpv4('8.0.0.0/8'));echo '<br>';
+        print_r($ipl->ipv6ToCidr('2002:0000:0000:1234:abcd:ffff:c0a8:0000', '2002:0000:0000:1234:ffff:ffff:ffff:ffff'));echo '<br>';
+        print_r($ipl->cidrToIpv6('2002::1234:abcd:ffff:c0a8:101/64'));echo '<br>';
+        print_r($ipl->compressIpv6('2002:0000:0000:1234:FFFF:FFFF:FFFF:FFFF'));echo '<br>';
+        print_r($ipl->expandIpv6('2002::1234:FFFF:FFFF:FFFF:FFFF'));echo '<br>';
     }
 }

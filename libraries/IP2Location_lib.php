@@ -1,6 +1,4 @@
 <?php
-(defined('BASEPATH') || defined('SYSPATH')) or die('No direct access allowed.');
-
 // BIN Database Setting
 if(!defined('IP2LOCATION_DATABASE')) {
 	define('IP2LOCATION_DATABASE', dirname(__FILE__) . '/ip2location/IP2LOCATION-DB.BIN');
@@ -131,6 +129,66 @@ class IP2Location_lib {
 	public function getWebService($ip=NULL) {
 		$ws = new \IP2Location\WebService(IP2LOCATION_API_KEY, IP2LOCATION_PACKAGE, IP2LOCATION_USESSL);
 		return $ws->lookup(self::getIP($ip), IP2LOCATION_ADDONS, IP2LOCATION_LANGUAGE);
+	}
+
+	public function isIpv4($ip=NULL) {
+		$ipTools = new \IP2Location\IpTools();
+		return $ipTools->isIpv4($ip);
+	}
+
+	public function isIpv6($ip=NULL) {
+		$ipTools = new \IP2Location\IpTools();
+		return $ipTools->isIpv6($ip);
+	}
+
+	public function ipv4ToDecimal($ip=NULL) {
+		$ipTools = new \IP2Location\IpTools();
+		return $ipTools->ipv4ToDecimal($ip);
+	}
+
+	public function ipv6ToDecimal($ip=NULL) {
+		$ipTools = new \IP2Location\IpTools();
+		return $ipTools->ipv6ToDecimal($ip);
+	}
+
+	public function decimalToIpv4($num=NULL) {
+		$ipTools = new \IP2Location\IpTools();
+		return $ipTools->decimalToIpv4($num);
+	}
+
+	public function decimalToIpv6($num=NULL) {
+		$ipTools = new \IP2Location\IpTools();
+		return $ipTools->decimalToIpv6($num);
+	}
+
+	public function ipv4ToCidr($ipFrom=NULL, $ipTo=NULL) {
+		$ipTools = new \IP2Location\IpTools();
+		return $ipTools->ipv4ToCidr($ipFrom, $ipTo);
+	}
+
+	public function cidrToIpv4($cidr=NULL) {
+		$ipTools = new \IP2Location\IpTools();
+		return $ipTools->cidrToIpv4($cidr);
+	}
+
+	public function ipv6ToCidr($ipFrom=NULL, $ipTo=NULL) {
+		$ipTools = new \IP2Location\IpTools();
+		return $ipTools->ipv6ToCidr($ipFrom, $ipTo);
+	}
+
+	public function cidrToIpv6($cidr=NULL) {
+		$ipTools = new \IP2Location\IpTools();
+		return $ipTools->cidrToIpv6($cidr);
+	}
+
+	public function compressIpv6($ipv6=NULL) {
+		$ipTools = new \IP2Location\IpTools();
+		return $ipTools->compressIpv6($ipv6);
+	}
+
+	public function expandIpv6($ipv6=NULL) {
+		$ipTools = new \IP2Location\IpTools();
+		return $ipTools->expandIpv6($ipv6);
 	}
 
 	protected function getIP($ip=NULL) {
